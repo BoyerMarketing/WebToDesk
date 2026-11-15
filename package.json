@@ -16,6 +16,8 @@
     "mac": {
       "category": "public.app-category.utilities"
     },
-    "icon": "build/icon"
+    "icon": "build/icon",
+    "productName": "Operant Cloud",
+    "executableName": "operant-cloud"
   }
 }
