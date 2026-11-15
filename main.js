@@ -9,25 +9,11 @@ let mainWindow;
 let mainMenu = Menu.buildFromTemplate(MainMenuapp);
 let rightMenu = Menu.buildFromTemplate(RightMenuapp);
 
-function trustedToolbarSender(event) {
-  return event?.sender === mainWindow?.webContents;
-}
-
-ipcMain.on('toolbar-back', (event) => { if (trustedToolbarSender(event) && mainWindow.webContents.canGoBack()) mainWindow.webContents.goBack(); });
-ipcMain.on('toolbar-forward', (event) => { if (trustedToolbarSender(event) && mainWindow.webContents.canGoForward()) mainWindow.webContents.goForward(); });
-ipcMain.on('toolbar-home', (event) => { if (trustedToolbarSender(event)) mainWindow.loadURL(appConfig.websiteUrl); });
-ipcMain.on('toolbar-reload', (event) => { if (trustedToolbarSender(event)) mainWindow.webContents.reload(); });
-ipcMain.on('window-minimize', (event) => { if (trustedToolbarSender(event)) mainWindow.minimize(); });
-ipcMain.on('window-toggle-maximize', (event) => { if (trustedToolbarSender(event)) mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize(); });
-ipcMain.on('window-close', (event) => { if (trustedToolbarSender(event)) mainWindow.close(); });
-
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: appConfig.width, height: appConfig.height,
     minWidth: appConfig.minWidth, minHeight: appConfig.minHeight,
     autoHideMenuBar: true,
-    frame: false,
-    titleBarStyle: 'hidden',
     backgroundColor: '#ffffff',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
