@@ -9,6 +9,15 @@ let mainWindow;
 let mainMenu = Menu.buildFromTemplate(MainMenuapp);
 let rightMenu = Menu.buildFromTemplate(RightMenuapp);
 
+function trustedToolbarSender(event) {
+  return event?.sender === mainWindow?.webContents;
+}
+
+ipcMain.on('toolbar-back', (event) => { if (trustedToolbarSender(event) && mainWindow.webContents.canGoBack()) mainWindow.webContents.goBack(); });
+ipcMain.on('toolbar-forward', (event) => { if (trustedToolbarSender(event) && mainWindow.webContents.canGoForward()) mainWindow.webContents.goForward(); });
+ipcMain.on('toolbar-home', (event) => { if (trustedToolbarSender(event)) mainWindow.loadURL(appConfig.websiteUrl); });
+ipcMain.on('toolbar-reload', (event) => { if (trustedToolbarSender(event)) mainWindow.webContents.reload(); });
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: appConfig.width, height: appConfig.height,

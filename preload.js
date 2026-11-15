@@ -1,50 +1,47 @@
-// WebToDesk v2.0.0
-// Idriss Boukmouche
-// boukemoucheidriss@gamil.com
+const { contextBridge, ipcRenderer } = require('electron');
+const appConfig = require('./config');
 
-const { ipcRenderer } = require("electron");
-const appConfig = require("./config");
+contextBridge.exposeInMainWorld('electronAPI', Object.freeze({
+  retryConnection: () => ipcRenderer.send('online-status-changed', true),
+  printPage: () => ipcRenderer.send('printPage'),
+  appName: appConfig.appName,
+  toolbar: Object.freeze({
+    back: () => ipcRenderer.send('toolbar-back'),
+    forward: () => ipcRenderer.send('toolbar-forward'),
+    home: () => ipcRenderer.send('toolbar-home'),
+    reload: () => ipcRenderer.send('toolbar-reload'),
+    print: () => ipcRenderer.send('printPage'),
+  }),
+}));
 
-window.addEventListener("DOMContentLoaded", () => {
-  // Hidden webpage elements uding ID tags
-  if (appConfig.hideElementsId.length > 0) {
-    for (
-      let elementsId = 0;
-      elementsId < appConfig.hideElementsId.length;
-      elementsId++
-    ) {
-      let hiddenElementsId = document.getElementById(
-        appConfig.hideElementsId[elementsId]
-      );
-      hiddenElementsId
-        ? (hiddenElementsId.style.display = "none")
-        : console.log;
-    }
-  }
+function installToolbar() {
+  if (document.getElementById('operant-electron-toolbar-host')) return;
+  const host = document.createElement('div');
+  host.id = 'operant-electron-toolbar-host';
+  host.style.cssText = 'position:fixed;top:0;left:0;right:0;height:42px;z-index:2147483647;pointer-events:none;';
+  const root = host.attachShadow({ mode: 'closed' });
+  const style = document.createElement('style');
+  style.textContent = ':host{all:initial}.bar{box-sizing:border-box;height:42px;display:flex;align-items:center;gap:4px;padding:5px 9px;background:#111;color:#fff;font:12px Arial,sans-serif;box-shadow:0 1px 5px #0004;pointer-events:auto}button{border:0;border-radius:4px;background:#292929;color:#fff;min-width:30px;height:30px;padding:0 9px;font:inherit;cursor:pointer}button:hover{background:#444}button:disabled{opacity:.4;cursor:default}.brand{font-weight:700;margin-right:6px;letter-spacing:.2px}.status{margin-left:auto;color:#b8f2c8}.collapsed .action,.collapsed .status{display:none}.collapsed .brand{display:none}';
+  root.append(style);
+  const bar = document.createElement('div');
+  bar.className = 'bar';
+  bar.innerHTML = '<span class="brand">Operant Cloud</span><button data-action="back" title="Atrás" aria-label="Atrás">←</button><button data-action="forward" title="Adelante" aria-label="Adelante">→</button><button data-action="home" title="Inicio" aria-label="Inicio">⌂</button><button data-action="reload" title="Recargar" aria-label="Recargar">↻</button><button data-action="print" title="Imprimir" aria-label="Imprimir">⎙</button><button data-action="collapse" title="Contraer barra" aria-label="Contraer barra">−</button><span class="status">En línea</span>';
+  root.append(bar);
+  const api = window.electronAPI.toolbar;
+  const updateConnection = () => { const status = bar.querySelector('.status'); if (status) { status.textContent = navigator.onLine ? 'En línea' : 'Sin conexión'; status.style.color = navigator.onLine ? '#b8f2c8' : '#ffb4ab'; } };
+  bar.addEventListener('click', event => { const button = event.target.closest('button'); if (!button) return; const action = button.dataset.action; if (action === 'collapse') { bar.classList.toggle('collapsed'); button.textContent = bar.classList.contains('collapsed') ? '+' : '−'; button.title = bar.classList.contains('collapsed') ? 'Expandir barra' : 'Contraer barra'; return; } if (api[action]) api[action](); });
+  window.addEventListener('online', updateConnection);
+  window.addEventListener('offline', updateConnection);
+  updateConnection();
+  document.documentElement.style.paddingTop = '42px';
+  document.body.appendChild(host);
+}
 
-  // Hidden webpage elements uding Class tags
-  if (appConfig.hideElementsClass.length > 0) {
-    for (
-      let elementsClass = 0;
-      elementsClass < appConfig.hideElementsClass.length;
-      elementsClass++
-    ) {
-      let hiddenElementsClass = document.getElementsByClassName(
-        appConfig.hideElementsClass[elementsClass]
-      );
-      hiddenElementsClass
-        ? (hiddenElementsClass[0].style.visibility = "hidden")
-        : console.log;
-    }
-  }
-
-  //Change application tiitle
-  document.title = appConfig["appName"];
-
-  //Error page reload again button press
-  let tryagainbtn = document.getElementById("tryagain");
-  tryagainbtn ? (tryagainbtn.onclick = runc) : false;
-  function runc() {
-    ipcRenderer.send("online-status-changed", true);
-  }
+window.addEventListener('DOMContentLoaded', () => {
+  for (const id of appConfig.hideElementsId || []) { const element = document.getElementById(id); if (element) element.style.display = 'none'; }
+  for (const className of appConfig.hideElementsClass || []) for (const element of document.getElementsByClassName(className)) element.style.visibility = 'hidden';
+  document.title = appConfig.appName;
+  const tryAgain = document.getElementById('tryagain');
+  if (tryAgain) tryAgain.onclick = () => window.electronAPI.retryConnection();
+  if (location.protocol === 'https:') installToolbar();
 });
