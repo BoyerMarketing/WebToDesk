@@ -10,7 +10,6 @@ const electronAPI = Object.freeze({
     forward: () => ipcRenderer.send('toolbar-forward'),
     home: () => ipcRenderer.send('toolbar-home'),
     reload: () => ipcRenderer.send('toolbar-reload'),
-    print: () => ipcRenderer.send('printPage'),
     minimize: () => ipcRenderer.send('window-minimize'),
     toggleMaximize: () => ipcRenderer.send('window-toggle-maximize'),
     close: () => ipcRenderer.send('window-close'),
@@ -29,7 +28,7 @@ function installToolbar() {
   root.append(style);
   const bar = document.createElement('div');
   bar.className = 'bar';
-  bar.innerHTML = '<span class="brand">Operant Cloud</span><button data-action="back" title="Atrás" aria-label="Atrás">←</button><button data-action="forward" title="Adelante" aria-label="Adelante">→</button><button data-action="home" title="Inicio" aria-label="Inicio">⌂</button><button data-action="reload" title="Recargar" aria-label="Recargar">↻</button><button data-action="print" title="Imprimir" aria-label="Imprimir">⎙</button><button data-action="collapse" title="Contraer barra" aria-label="Contraer barra">−</button><span class="window-actions"><button data-action="minimize" title="Minimizar" aria-label="Minimizar">−</button><button data-action="toggleMaximize" title="Maximizar" aria-label="Maximizar">□</button><button class="window-close" data-action="close" title="Cerrar" aria-label="Cerrar">×</button></span>';
+  bar.innerHTML = '<span class="brand">Operant Cloud</span><button data-action="back" title="Atrás" aria-label="Atrás">←</button><button data-action="forward" title="Adelante" aria-label="Adelante">→</button><button data-action="home" title="Inicio" aria-label="Inicio">⌂</button><button data-action="reload" title="Recargar" aria-label="Recargar">↻</button><button data-action="collapse" title="Contraer barra" aria-label="Contraer barra">−</button><span class="window-actions"><button data-action="minimize" title="Minimizar" aria-label="Minimizar">−</button><button data-action="toggleMaximize" title="Maximizar" aria-label="Maximizar">□</button><button class="window-close" data-action="close" title="Cerrar" aria-label="Cerrar">×</button></span>';
   root.append(bar);
   const api = electronAPI.toolbar;
   document.documentElement.style.paddingTop = '42px';
