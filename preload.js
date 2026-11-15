@@ -1,5 +1,5 @@
 const { contextBridge, ipcRenderer } = require('electron');
-const appConfig = require('./config');
+const appConfig = Object.freeze({ appName: 'Operant Cloud', hideElementsId: [], hideElementsClass: [] });
 
 contextBridge.exposeInMainWorld('electronAPI', Object.freeze({
   retryConnection: () => ipcRenderer.send('online-status-changed', true),
