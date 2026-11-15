@@ -31,7 +31,7 @@ function installToolbar() {
   bar.innerHTML = '<span class="brand">Operant Cloud</span><button data-action="back" title="Atrás" aria-label="Atrás">←</button><button data-action="forward" title="Adelante" aria-label="Adelante">→</button><button data-action="home" title="Inicio" aria-label="Inicio">⌂</button><button data-action="reload" title="Recargar" aria-label="Recargar">↻</button><button data-action="collapse" title="Contraer barra" aria-label="Contraer barra">−</button><span class="window-actions"><button data-action="minimize" title="Minimizar" aria-label="Minimizar">−</button><button data-action="toggleMaximize" title="Maximizar" aria-label="Maximizar">□</button><button class="window-close" data-action="close" title="Cerrar" aria-label="Cerrar">×</button></span>';
   root.append(bar);
   const api = electronAPI.toolbar;
-  document.documentElement.style.paddingTop = '42px';
+  document.documentElement.style.paddingTop = '0';
   document.body.appendChild(host);
 }
 
@@ -43,7 +43,7 @@ window.addEventListener('DOMContentLoaded', () => {
   if (tryAgain) tryAgain.onclick = () => electronAPI.retryConnection();
   {
     const desktopStyle = document.createElement('style');
-    desktopStyle.textContent = '.sidebar.collapsed .nav-item .icon,.pos-sidebar.collapsed .pos-nav-item>span:first-child,.pos-sidebar.collapsed .pos-nav-group>span:first-child{display:inline-flex!important;align-items:center;justify-content:center;flex:0 0 20px!important;width:20px!important;min-width:20px!important;overflow:visible!important}.sidebar.collapsed .sidebar-nav,.pos-sidebar.collapsed{scrollbar-width:none!important}.sidebar.collapsed .sidebar-nav::-webkit-scrollbar,.pos-sidebar.collapsed::-webkit-scrollbar{display:none!important;width:0!important}';
+    desktopStyle.textContent = 'html,body{padding-top:42px!important}.app-layout{min-height:calc(100vh - 42px)!important}.topbar{top:42px!important}.sidebar{top:42px!important;bottom:0!important}.pos-sidebar{top:42px!important;height:calc(100vh - 42px)!important;min-height:calc(100vh - 42px)!important}.sidebar.collapsed .nav-item .icon,.pos-sidebar.collapsed .pos-nav-item>span:first-child,.pos-sidebar.collapsed .pos-nav-group>span:first-child{display:inline-flex!important;align-items:center;justify-content:center;flex:0 0 20px!important;width:20px!important;min-width:20px!important;overflow:visible!important}.sidebar.collapsed .sidebar-nav,.pos-sidebar.collapsed{scrollbar-width:none!important}.sidebar.collapsed .sidebar-nav::-webkit-scrollbar,.pos-sidebar.collapsed::-webkit-scrollbar{display:none!important;width:0!important}';
     document.head.appendChild(desktopStyle);
     installToolbar();
   }
