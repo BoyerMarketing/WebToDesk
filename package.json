@@ -18,6 +18,16 @@
     },
     "icon": "build/icon",
     "productName": "Operant Cloud",
-    "executableName": "operant-cloud"
+    "executableName": "operant-cloud",
+    "files": [
+      "main.js",
+      "preload.js",
+      "config.js",
+      "menu-config.js",
+      "right-menu-config.js",
+      "print-option.js",
+      "public/**/*",
+      "package.json"
+    ]
   }
 }
