@@ -21,7 +21,7 @@ function installToolbar() {
   host.style.cssText = 'position:fixed;top:0;left:0;right:0;height:42px;z-index:2147483647;pointer-events:none;';
   const root = host.attachShadow({ mode: 'closed' });
   const style = document.createElement('style');
-  style.textContent = ':host{all:initial}.bar{box-sizing:border-box;height:42px;display:flex;align-items:center;gap:4px;padding:5px 9px;background:#111;color:#fff;font:12px Arial,sans-serif;box-shadow:0 1px 5px #0004;pointer-events:auto}button{border:0;border-radius:4px;background:#292929;color:#fff;min-width:30px;height:30px;padding:0 9px;font:inherit;cursor:pointer}button:hover{background:#444}button:disabled{opacity:.4;cursor:default}.brand{font-weight:700;margin-right:6px;letter-spacing:.2px}.status{margin-left:auto;color:#b8f2c8}.collapsed .action,.collapsed .status{display:none}.collapsed .brand{display:none}';
+  style.textContent = ':host{all:initial}.bar{box-sizing:border-box;height:42px;display:flex;align-items:center;gap:4px;padding:5px 9px;background:#fff;color:#111;border-bottom:1px solid #e5e7eb;font:12px Arial,sans-serif;box-shadow:0 1px 5px #0004;pointer-events:auto}button{border:0;border-radius:4px;background:#f4f4f5;color:#111;min-width:30px;height:30px;padding:0 9px;font:inherit;cursor:pointer}button:hover{background:#e4e4e7}button:disabled{opacity:.4;cursor:default}.brand{font-weight:700;margin-right:6px;letter-spacing:.2px}.status{margin-left:auto;color:#b8f2c8}.collapsed .action,.collapsed .status{display:none}.collapsed .brand{display:none}';
   root.append(style);
   const bar = document.createElement('div');
   bar.className = 'bar';
