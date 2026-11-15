@@ -1,116 +1,61 @@
-// WebToDesk v2.0.0
-// Idriss Boukmouche
-// boukemoucheidriss@gamil.com
-
-const {
-  app,
-  BrowserWindow,
-  nativeTheme,
-  ipcMain,
-  Menu,
-  dialog,
-} = require("electron");
-const path = require("path");
-const MainMenuapp = require("./menu-config");
-const RightMenuapp = require("./right-menu-config");
-const PrintOptions = require("./right-menu-config");
-const appConfig = require("./config");
-
+const { app, BrowserWindow, ipcMain, Menu, dialog, shell, session } = require('electron');
+const path = require('path');
+const MainMenuapp = require('./menu-config');
+const RightMenuapp = require('./right-menu-config');
+const PrintOptions = require('./right-menu-config');
+const appConfig = require('./config');
+const allowedOrigin = new URL(appConfig.websiteUrl).origin;
 let mainWindow;
-
-// Menu
 let mainMenu = Menu.buildFromTemplate(MainMenuapp);
-
 let rightMenu = Menu.buildFromTemplate(RightMenuapp);
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: appConfig["width"],
-    height: appConfig["height"],
-    minWidth: appConfig["minWidth"],
-    minHeight: appConfig["minHeight"],
+    width: appConfig.width, height: appConfig.height,
+    minWidth: appConfig.minWidth, minHeight: appConfig.minHeight,
+    autoHideMenuBar: true,
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
-      nodeIntegration: true,
-      contextIsolation: false,
+      preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: false,
+      contextIsolation: true,
+      sandbox: true,
     },
   });
-
-  //Load Appliaction Main Menu
   Menu.setApplicationMenu(mainMenu);
-
-  //Load Right click menu
-  mainWindow.webContents.on("context-menu", (e) => {
-    rightMenu.popup(mainWindow);
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    if (url.startsWith('file://') || new URL(url).origin === allowedOrigin) return;
+    event.preventDefault();
+    if (/^https?:\/\//i.test(url)) shell.openExternal(url);
   });
-
-  //CreatWindow execute loding remote content
+  mainWindow.webContents.on('will-redirect', (event, url) => {
+    if (url.startsWith('file://') || new URL(url).origin === allowedOrigin) return;
+    event.preventDefault();
+  });
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (/^https?:\/\//i.test(url)) shell.openExternal(url);
+    return { action: 'deny' };
+  });
+  mainWindow.webContents.session.setPermissionRequestHandler((_webContents, _permission, callback) => callback(false));
+  mainWindow.webContents.on('context-menu', (event) => { event.preventDefault(); rightMenu.popup({ window: mainWindow }); });
   loadWebContent();
 }
-
 function loadWebContent() {
-  //Loading spalsh screen
-  mainWindow.loadFile(path.join(__dirname, "public/loading.html"));
-
-  //create webContants
-  let wc = mainWindow.webContents;
-
-  //suessfull loding page afer dom created
-  wc.once("did-finish-load", () => {
-    mainWindow.loadURL(appConfig["websiteUrl"]);
-  });
-
-  // if not loading page redirect error page
-  wc.on("did-fail-provisional-load", (error, code) => {
-    mainWindow.loadFile(path.join(__dirname, "public/offline.html"));
-  });
+  mainWindow.loadFile(path.join(__dirname, 'public/loading.html'));
+  mainWindow.webContents.once('did-finish-load', () => mainWindow.loadURL(appConfig.websiteUrl));
+  mainWindow.webContents.on('did-fail-provisional-load', () => mainWindow.loadFile(path.join(__dirname, 'public/offline.html')));
 }
-
-// Check website loading error (offline, page not found or etc.)
-ipcMain.on("online-status-changed", (event, status) => {
-  if (status == true) {
-    loadWebContent();
-  }
-});
-
-// Print page option
-ipcMain.on("printPage", () => {
-  var options = PrintOptions;
-
-  let win = BrowserWindow.getFocusedWindow();
-
-  win.webContents.print(options, (success, failureReason) => {
-    if (!success)
-      dialog.showMessageBox(mainWindow, {
-        message: failureReason.charAt(0).toUpperCase() + failureReason.slice(1),
-        type: "error",
-        buttons: ["Cancel"],
-        defaultId: 0,
-        title: "Print Error",
-      });
+ipcMain.on('online-status-changed', () => loadWebContent());
+ipcMain.on('printPage', () => {
+  const win = BrowserWindow.getFocusedWindow();
+  if (!win) return;
+  win.webContents.print(PrintOptions, (success, failureReason) => {
+    if (!success) dialog.showMessageBox(mainWindow, { message: failureReason || 'No se pudo imprimir.', type: 'error', buttons: ['Cerrar'], title: 'Error de impresión' });
   });
 });
-
-//Load menuItem local pages (About, Home page, etc)
-module.exports = (pageId) => {
-  if (pageId === "home") {
-    loadWebContent();
-  } else {
-    mainWindow.loadFile(path.join(__dirname, `public/${pageId}.html`));
-  }
-};
-
-app.whenReady().then(createWindow);
-
-// Quit when all windows are closed.
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
+module.exports = (pageId) => pageId === 'home' ? loadWebContent() : mainWindow.loadFile(path.join(__dirname, `public/${pageId}.html`));
+app.whenReady().then(() => {
+  session.defaultSession.setPermissionRequestHandler((_webContents, _permission, callback) => callback(false));
+  createWindow();
 });
-
-app.on("activate", () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
-});
+app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
+app.on('activate', () => { if (!BrowserWindow.getAllWindows().length) createWindow(); });
