@@ -43,5 +43,10 @@ window.addEventListener('DOMContentLoaded', () => {
   document.title = appConfig.appName;
   const tryAgain = document.getElementById('tryagain');
   if (tryAgain) tryAgain.onclick = () => window.electronAPI.retryConnection();
-  if (location.protocol === 'https:') installToolbar();
+  if (location.protocol === 'https:') {
+    const desktopStyle = document.createElement('style');
+    desktopStyle.textContent = '.sidebar.collapsed .nav-item .icon,.pos-sidebar.collapsed .pos-nav-item>span:first-child,.pos-sidebar.collapsed .pos-nav-group>span:first-child{display:inline-flex!important;align-items:center;justify-content:center;flex:0 0 20px!important;width:20px!important;min-width:20px!important;overflow:visible!important}.sidebar.collapsed .sidebar-nav,.pos-sidebar.collapsed{scrollbar-width:none!important}.sidebar.collapsed .sidebar-nav::-webkit-scrollbar,.pos-sidebar.collapsed::-webkit-scrollbar{display:none!important;width:0!important}';
+    document.head.appendChild(desktopStyle);
+    installToolbar();
+  }
 });
