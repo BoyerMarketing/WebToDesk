@@ -1,46 +1,26 @@
-<!DOCTYPE html>
-<html>
-  <head>
-<style>
-html, body {
-    height: 100%;
-}
-body {
-    margin: 0;
-}
-.flex-container {
-    height: 100%;
-    padding: 0;
-    margin: 0;
-    display: -webkit-box;
-    display: -moz-box;
-    display: -ms-flexbox;
-    display: -webkit-flex;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-</style>
-
-    <meta charset="UTF-8">
-    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-    <!-- Custom stlylesheet -->
-    <link type="text/css" rel="stylesheet" href="style.css" />
-
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'">
+  <title>Operant Cloud</title>
+  <style>
+    html, body { width:100%; height:100%; margin:0; background:#fff; }
+    body { display:grid; place-items:center; font-family:Arial, sans-serif; color:#111; }
+    .brand { display:flex; align-items:center; gap:22px; }
+    .mark { width:128px; height:128px; display:block; }
+    .name { font-size:44px; font-weight:700; letter-spacing:-2px; }
+    .cloud { display:block; margin-top:5px; font-size:15px; letter-spacing:7px; font-weight:600; }
+  </style>
 </head>
-
 <body>
-
-	<div id="container">
-		<div class="content">
-			<span class="loader"></span>
-        </div>
-	</div>
-
+  <main class="brand" aria-label="Operant Cloud cargando">
+    <svg class="mark" viewBox="0 0 48 48" aria-hidden="true">
+      <rect width="48" height="48" rx="9" fill="#111"/>
+      <rect x="8.5" y="8.5" width="31" height="31" rx="1.5" fill="none" stroke="#fff" stroke-width="2.4"/>
+      <path d="M24 15v18M15 24h18" stroke="#fff" stroke-width="3" stroke-linecap="square"/>
+    </svg>
+    <div><div class="name">Operant</div><span class="cloud">CLOUD</span></div>
+  </main>
 </body>
-
 </html>
-
