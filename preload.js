@@ -1,7 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 const appConfig = Object.freeze({ appName: 'Operant Cloud', hideElementsId: [], hideElementsClass: [] });
 
-contextBridge.exposeInMainWorld('electronAPI', Object.freeze({
+const electronAPI = Object.freeze({
   retryConnection: () => ipcRenderer.send('online-status-changed', true),
   printPage: () => ipcRenderer.send('printPage'),
   appName: appConfig.appName,
@@ -15,7 +15,8 @@ contextBridge.exposeInMainWorld('electronAPI', Object.freeze({
     toggleMaximize: () => ipcRenderer.send('window-toggle-maximize'),
     close: () => ipcRenderer.send('window-close'),
   }),
-}));
+});
+contextBridge.exposeInMainWorld('electronAPI', electronAPI);
 
 function installToolbar() {
   if (document.getElementById('operant-electron-toolbar-host')) return;
@@ -30,7 +31,7 @@ function installToolbar() {
   bar.className = 'bar';
   bar.innerHTML = '<span class="brand">Operant Cloud</span><button data-action="back" title="Atrás" aria-label="Atrás">←</button><button data-action="forward" title="Adelante" aria-label="Adelante">→</button><button data-action="home" title="Inicio" aria-label="Inicio">⌂</button><button data-action="reload" title="Recargar" aria-label="Recargar">↻</button><button data-action="print" title="Imprimir" aria-label="Imprimir">⎙</button><button data-action="collapse" title="Contraer barra" aria-label="Contraer barra">−</button><span class="status">En línea</span><span class="window-actions"><button data-action="minimize" title="Minimizar" aria-label="Minimizar">−</button><button data-action="toggleMaximize" title="Maximizar" aria-label="Maximizar">□</button><button class="window-close" data-action="close" title="Cerrar" aria-label="Cerrar">×</button></span>';
   root.append(bar);
-  const api = window.electronAPI.toolbar;
+  const api = electronAPI.toolbar;
   const updateConnection = () => { const status = bar.querySelector('.status'); if (status) { status.textContent = navigator.onLine ? 'En línea' : 'Sin conexión'; status.style.color = navigator.onLine ? '#b8f2c8' : '#ffb4ab'; } };
   bar.addEventListener('click', event => { const button = event.target.closest('button'); if (!button) return; const action = button.dataset.action; if (action === 'collapse') { bar.classList.toggle('collapsed'); button.textContent = bar.classList.contains('collapsed') ? '+' : '−'; button.title = bar.classList.contains('collapsed') ? 'Expandir barra' : 'Contraer barra'; return; } if (api[action]) api[action](); });
   window.addEventListener('online', updateConnection);
@@ -45,7 +46,7 @@ window.addEventListener('DOMContentLoaded', () => {
   for (const className of appConfig.hideElementsClass || []) for (const element of document.getElementsByClassName(className)) element.style.visibility = 'hidden';
   document.title = appConfig.appName;
   const tryAgain = document.getElementById('tryagain');
-  if (tryAgain) tryAgain.onclick = () => window.electronAPI.retryConnection();
+  if (tryAgain) tryAgain.onclick = () => electronAPI.retryConnection();
   {
     const desktopStyle = document.createElement('style');
     desktopStyle.textContent = '.sidebar.collapsed .nav-item .icon,.pos-sidebar.collapsed .pos-nav-item>span:first-child,.pos-sidebar.collapsed .pos-nav-group>span:first-child{display:inline-flex!important;align-items:center;justify-content:center;flex:0 0 20px!important;width:20px!important;min-width:20px!important;overflow:visible!important}.sidebar.collapsed .sidebar-nav,.pos-sidebar.collapsed{scrollbar-width:none!important}.sidebar.collapsed .sidebar-nav::-webkit-scrollbar,.pos-sidebar.collapsed::-webkit-scrollbar{display:none!important;width:0!important}';
